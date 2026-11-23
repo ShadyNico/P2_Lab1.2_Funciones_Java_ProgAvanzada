@@ -1,6 +1,8 @@
 package ec.edu.espe.pa.funcional;
 
 import ec.edu.espe.pa.funcional.modelo.Incidencia;
+import ec.edu.espe.pa.funcional.contrato.ReglaIncidencia;
+import ec.edu.espe.pa.funcional.reglas.PrioridadAlta;
 import java.util.*;
 import java.util.function.*;
 
@@ -40,5 +42,35 @@ public class Demostracion {
         System.out.println("Lambda de expresion/bloque/tipada/captura -> "
                 + expresion.test(ejemplo) + "/" + bloque.test(ejemplo) + "/"
                 + tipada.test(ejemplo) + "/" + superaUmbral.test(ejemplo));
+
+        System.out.println();
+        System.out.println("=== Fase 3: contrato propio ReglaIncidencia ===");
+        // 1) Clase con nombre
+        ReglaIncidencia prioridadAltaClase = new PrioridadAlta();
+
+        // 2) Clase anonima
+        ReglaIncidencia abiertaAnonima = new ReglaIncidencia() {
+            @Override
+            public boolean evaluar(Incidencia incidencia) {
+                return "ABIERTA".equals(incidencia.estado());
+            }
+        };
+
+        // 3) Expresion lambda
+        ReglaIncidencia abiertaLambda = incidencia -> "ABIERTA".equals(incidencia.estado());
+
+        // Combinacion con el metodo default y adaptacion a Predicate mediante referencia a metodo
+        ReglaIncidencia requiereAtencion = abiertaLambda.y(new PrioridadAlta());
+        Predicate<Incidencia> comoPredicado = requiereAtencion::evaluar;
+
+        Incidencia alta = new Incidencia("INC-010", "Caida del servidor", "ABIERTA", 5);
+        Incidencia cerrada = new Incidencia("INC-011", "Fallo de respaldo", "CERRADA", 5);
+        for (Incidencia i : List.of(alta, cerrada)) {
+            System.out.println(i.id() + " | clase=" + prioridadAltaClase.evaluar(i)
+                    + " | anonima=" + abiertaAnonima.evaluar(i)
+                    + " | lambda=" + abiertaLambda.evaluar(i)
+                    + " | y(...)=" + requiereAtencion.evaluar(i)
+                    + " | comoPredicado=" + comoPredicado.test(i));
+        }
     }
 }
