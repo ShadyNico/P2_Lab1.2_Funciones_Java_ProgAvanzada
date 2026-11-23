@@ -50,4 +50,9 @@ public final class ReglasIncidencia {
                     estados[n % estados.length], (n % 5) + 1);
         };
     }
+
+    // 8. Referencia a metodo estatico: Predicate<Incidencia> esCritica = ReglasIncidencia::esCritica
+    public static boolean esCritica(Incidencia incidencia) {
+        return incidencia.prioridad() == 5;
+    }
 }
