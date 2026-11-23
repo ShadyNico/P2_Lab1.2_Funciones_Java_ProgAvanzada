@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -32,10 +33,12 @@ class EquivalenciaTest {
 
     @ParameterizedTest
     @MethodSource("escenarios")
-    void ambasSolucionesProducenElMismoResultado(List<Incidencia> datos) {
+    void ambasSolucionesProducenElMismoResultado(List<Incidencia> escenario) {
+        List<Incidencia> datos = new ArrayList<>(escenario);
         List<Incidencia> copia = List.copyOf(datos);
 
         List<String> esperado = imperativo.titulosQueRequierenAtencion(datos);
+        assertEquals(copia, datos);         // el recorrido imperativo conserva la entrada
         List<String> obtenido = funcional.titulosQueRequierenAtencion(datos);
 
         assertEquals(esperado, obtenido);   // mismos elementos y en el mismo orden

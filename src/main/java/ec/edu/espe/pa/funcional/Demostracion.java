@@ -52,33 +52,34 @@ public class Demostracion {
         ReglaIncidencia prioridadAltaClase = new PrioridadAlta();
 
         // 2) Clase anonima
-        ReglaIncidencia abiertaAnonima = new ReglaIncidencia() {
+        ReglaIncidencia prioridadAltaAnonima = new ReglaIncidencia() {
             @Override
             public boolean evaluar(Incidencia incidencia) {
-                return "ABIERTA".equals(incidencia.estado());
+                return incidencia.prioridad() >= UMBRAL_PRIORIDAD_ALTA;
             }
         };
 
         // 3) Expresion lambda
-        ReglaIncidencia abiertaLambda = incidencia -> "ABIERTA".equals(incidencia.estado());
+        ReglaIncidencia prioridadAltaLambda = i -> i.prioridad() >= UMBRAL_PRIORIDAD_ALTA;
 
         // Combinacion con el metodo default y adaptacion a Predicate mediante referencia a metodo
-        ReglaIncidencia requiereAtencion = abiertaLambda.y(new PrioridadAlta());
+        ReglaIncidencia reglaAbierta = i -> "ABIERTA".equals(i.estado());
+        ReglaIncidencia requiereAtencion = reglaAbierta.y(prioridadAltaClase);
         Predicate<Incidencia> comoPredicado = requiereAtencion::evaluar;
 
         Incidencia alta = new Incidencia("INC-010", "Caida del servidor", "ABIERTA", 5);
         Incidencia cerrada = new Incidencia("INC-011", "Fallo de respaldo", "CERRADA", 5);
-        for (Incidencia i : List.of(alta, cerrada)) {
+        Incidencia baja = new Incidencia("INC-012", "Error tipográfico", "ABIERTA", 2);
+        for (Incidencia i : List.of(alta, cerrada, baja)) {
             System.out.println(i.id() + " | clase=" + prioridadAltaClase.evaluar(i)
-                    + " | anonima=" + abiertaAnonima.evaluar(i)
-                    + " | lambda=" + abiertaLambda.evaluar(i)
+                    + " | anonima=" + prioridadAltaAnonima.evaluar(i)
+                    + " | lambda=" + prioridadAltaLambda.evaluar(i)
                     + " | y(...)=" + requiereAtencion.evaluar(i)
                     + " | comoPredicado=" + comoPredicado.test(i));
         }
 
         System.out.println();
         System.out.println("=== Fase 5: composicion y referencias a metodos ===");
-        Incidencia baja = new Incidencia("INC-012", "Error tipografico", "ABIERTA", 2);
         List<Incidencia> incidencias = List.of(alta, cerrada, baja);
 
         // Predicate: and, or, negate
